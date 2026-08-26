@@ -1,4 +1,4 @@
-"""RewardBank — Part 5 End-to-End Demo Script.
+"""RewardBank — End-to-End System Lifecycle Demo Script.
 
 Executes the complete lifecycle end-to-end:
 1. Setup: Parent, child, starting balance
@@ -79,7 +79,7 @@ def log_step(step_name: str, balance: int, new_entries: list[dict] = None):
 
 def run_demo():
     print("🏦 ==================================================================== 🏦")
-    print("🏦          REWARDBANK — PART 5 END-TO-END DEMO TRANSCRIPT              🏦")
+    print("🏦          REWARDBANK — SYSTEM LIFECYCLE DEMO TRANSCRIPT               🏦")
     print("🏦 ==================================================================== 🏦")
 
     # ─────────────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ def run_demo():
     assert invariant_holds, "Ledger invariant check failed!"
 
     print("\n✨ ==================================================================== ✨")
-    print("✨          DEMO COMPLETE — ALL PART 5 REQUIREMENTS VERIFIED            ✨")
+    print("✨          DEMO COMPLETE — ALL SYSTEM INVARIANTS VERIFIED              ✨")
     print("✨ ==================================================================== ✨\n")
 
 

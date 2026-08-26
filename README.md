@@ -19,7 +19,7 @@ python3 app/main.py
 # Run unit & integration tests (40 tests)
 PYTHONPATH=. pytest
 
-# Run Part 5 End-to-End Demo (single command complete lifecycle transcript)
+# Run End-to-End System Demo (complete lifecycle transcript)
 PYTHONPATH=. python3 demo.py
 
 # Run simulators
