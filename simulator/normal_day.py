@@ -35,7 +35,7 @@ def _get_client():
     init_db()
     _use_test_client = True
     _test_client = TestClient(app)
-    print("  ℹ️  No live server found on port 3000 — running simulator using embedded FastAPI TestClient\n")
+    print("  [INFO] No live server found on port 3000 — running simulator using embedded FastAPI TestClient\n")
     return _test_client
 
 
@@ -52,22 +52,22 @@ def api(method: str, path: str, token: str, body: dict = None) -> tuple[int, dic
             res = client.request(method, path, json=body, headers=headers)
     data = res.json()
     if res.status_code >= 400:
-        print(f"  ❌ {method} {path} → {res.status_code}: {data}")
+        print(f"  [ERROR] {method} {path} -> {res.status_code}: {data}")
     return res.status_code, data
 
 
 def log(msg: str):
-    print(f"  📋 {msg}")
+    print(f"  [LOG] {msg}")
 
 
 def section(title: str):
-    print(f"\n{'═' * 60}")
+    print(f"\n{'=' * 60}")
     print(f"  {title}")
-    print(f"{'═' * 60}")
+    print(f"{'=' * 60}")
 
 
 def normal_day():
-    print("\n🏦 RewardBank Simulator — Normal Day Scenario (Python/FastAPI)\n")
+    print("\n--- RewardBank Simulator — Normal Day Scenario (Python/FastAPI) ---\n")
 
     # 1. Create Tasks
     section("1. Parent creates 3 tasks")
@@ -80,7 +80,7 @@ def normal_day():
     for task in tasks:
         _, data = api("POST", "/tasks", PARENT_TOKEN, task)
         task_ids.append(data["id"])
-        log(f"Created: \"{task['title']}\" — {task['rewardMinutes']} min reward → ID: {data['id'][:8]}...")
+        log(f"Created: \"{task['title']}\" — {task['rewardMinutes']} min reward -> ID: {data['id'][:8]}...")
 
     # 2. Child marks done
     section("2. Child marks all tasks as done")
@@ -91,13 +91,13 @@ def normal_day():
     # 3. Parent reviews
     section("3. Parent reviews tasks")
     api("PATCH", f"/tasks/{task_ids[0]}/approve", PARENT_TOKEN)
-    log(f"✅ Approved: \"{tasks[0]['title']}\" (+{tasks[0]['rewardMinutes']} min)")
+    log(f"[APPROVED] \"{tasks[0]['title']}\" (+{tasks[0]['rewardMinutes']} min)")
 
     api("PATCH", f"/tasks/{task_ids[1]}/approve", PARENT_TOKEN)
-    log(f"✅ Approved: \"{tasks[1]['title']}\" (+{tasks[1]['rewardMinutes']} min)")
+    log(f"[APPROVED] \"{tasks[1]['title']}\" (+{tasks[1]['rewardMinutes']} min)")
 
     api("PATCH", f"/tasks/{task_ids[2]}/reject", PARENT_TOKEN)
-    log(f"❌ Rejected: \"{tasks[2]['title']}\" (room was still messy)")
+    log(f"[REJECTED] \"{tasks[2]['title']}\" (room was still messy)")
 
     _, bal1 = api("GET", "/children/child-1/balance", PARENT_TOKEN)
     log(f"Current balance: {bal1['balance']} minutes")
@@ -134,14 +134,14 @@ def normal_day():
 
     _, ledger = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
     log(f"Ledger entries: {len(ledger['entries'])}")
-    log(f"Invariant holds: {'✅ YES' if ledger['invariantHolds'] else '❌ NO'}")
+    log(f"Invariant holds: {'YES' if ledger['invariantHolds'] else 'NO'}")
 
     print("\n  Ledger:")
     for entry in ledger["entries"]:
         sign = "+" if entry["entryType"] == "credit" else "-"
         print(f"    {sign}{entry['amount']} min | balance: {entry['balanceAfter']} | {entry['description']}")
 
-    print("\n✅ Normal day scenario complete.\n")
+    print("\n[SUCCESS] Normal day scenario complete.\n")
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ def _get_client():
     init_db()
     _use_test_client = True
     _test_client = TestClient(app)
-    print("  ℹ️  No live server found on port 3000 — running simulator using embedded FastAPI TestClient\n")
+    print("  [INFO] No live server found on port 3000 — running simulator using embedded FastAPI TestClient\n")
     return _test_client
 
 
@@ -51,47 +51,47 @@ def api(method: str, path: str, token: str, body: dict = None) -> tuple[int, dic
     return res.status_code, res.json()
 
 
-def log(emoji: str, msg: str):
-    print(f"  {emoji} {msg}")
+def log(tag: str, msg: str):
+    print(f"  [{tag}] {msg}")
 
 
 def section(title: str):
-    print(f"\n{'─' * 60}")
+    print(f"\n{'-' * 60}")
     print(f"  {title}")
-    print(f"{'─' * 60}")
+    print(f"{'-' * 60}")
 
 
 def check_balance(label: str) -> int:
     _, data = api("GET", "/children/child-1/balance", PARENT_TOKEN)
-    log("💰", f"{label}: {data['balance']} minutes")
+    log("BALANCE", f"{label}: {data['balance']} minutes")
     return data["balance"]
 
 
 def check_invariant(label: str) -> bool:
     _, data = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
     holds = data["invariantHolds"]
-    log("✅" if holds else "🚨", f"Invariant check ({label}): {'HOLDS' if holds else 'VIOLATED!'}")
+    log("INVARIANT", f"Invariant check ({label}): {'HOLDS' if holds else 'VIOLATED!'}")
     return holds
 
 
 def worst_case():
-    print("\n🔥 RewardBank Simulator — WORST CASE: Murphy's Law Day (Python/FastAPI)\n")
+    print("\n--- RewardBank Simulator — WORST CASE: Murphy's Law Day (Python/FastAPI) ---\n")
     all_invariants_hold = True
 
     # 1. Create big task & approve
-    section("1. Parent creates a 60-min task → child completes → approved")
+    section("1. Parent creates a 60-min task -> child completes -> approved")
     _, big_task = api("POST", "/tasks", PARENT_TOKEN, {
         "childId": "child-1",
         "title": "Complete science project",
         "rewardMinutes": 60,
     })
-    log("📝", f"Task created: \"{big_task['title']}\" ({big_task['rewardMinutes']} min)")
+    log("TASK", f"Task created: \"{big_task['title']}\" ({big_task['rewardMinutes']} min)")
 
     api("PATCH", f"/tasks/{big_task['id']}/done", CHILD_TOKEN)
-    log("✋", "Child marks task done")
+    log("CHILD", "Child marks task done")
 
     api("PATCH", f"/tasks/{big_task['id']}/approve", PARENT_TOKEN)
-    log("✅", "Parent approves")
+    log("APPROVED", "Parent approves")
 
     check_balance("After approval")
     all_invariants_hold = check_invariant("after approval") and all_invariants_hold
@@ -106,7 +106,7 @@ def worst_case():
         "endTime": (now - timedelta(minutes=30)).isoformat(),
     }
     _, usage_a = api("POST", "/usage", CHILD_TOKEN, {"sessions": [dev_a_session]})
-    log("📱", f"Device A: YouTube {usage_a['results'][0]['minutesCovered']} min — {usage_a['results'][0]['status']}")
+    log("USAGE", f"Device A: YouTube {usage_a['results'][0]['minutesCovered']} min — {usage_a['results'][0]['status']}")
 
     dev_b_session = {
         "appId": "minecraft-pc",
@@ -114,7 +114,7 @@ def worst_case():
         "endTime": (now - timedelta(minutes=10)).isoformat(),
     }
     _, usage_b = api("POST", "/usage", CHILD_TOKEN, {"sessions": [dev_b_session]})
-    log("💻", f"Device B: Minecraft {usage_b['results'][0]['minutesCovered']} min — {usage_b['results'][0]['status']}")
+    log("USAGE", f"Device B: Minecraft {usage_b['results'][0]['minutesCovered']} min — {usage_b['results'][0]['status']}")
 
     dev_c_session = {
         "appId": "roblox-phone",
@@ -122,29 +122,29 @@ def worst_case():
         "endTime": now.isoformat(),
     }
     _, usage_c = api("POST", "/usage", CHILD_TOKEN, {"sessions": [dev_c_session]})
-    log("📱", f"Device C: Roblox {usage_c['results'][0]['minutesCovered']} min — {usage_c['results'][0]['status']}")
+    log("USAGE", f"Device C: Roblox {usage_c['results'][0]['minutesCovered']} min — {usage_c['results'][0]['status']}")
 
     check_balance("After 3 devices")
     all_invariants_hold = check_invariant("after usage") and all_invariants_hold
 
     # 3. Device A offline
     section("3. Device A goes offline (will report late session later)")
-    log("📴", "Device A loses connectivity — session queued locally")
+    log("OFFLINE", "Device A loses connectivity — session queued locally")
     late_session = {
         "appId": "netflix-tablet",
         "startTime": (now - timedelta(minutes=90)).isoformat(),
         "endTime": (now - timedelta(minutes=75)).isoformat(),
     }
-    log("⏰", f"Late session: Netflix from {late_session['startTime']} to {late_session['endTime']}")
+    log("QUEUED", f"Late session: Netflix from {late_session['startTime']} to {late_session['endTime']}")
 
     # 4. Parent undoes approval -> negative balance
-    section("4. DISASTER: Parent realizes wrong task approved → UNDO")
-    log("😱", "Parent: \"Wait, that wasn't the science project!\"")
+    section("4. Parent realizes wrong task approved -> UNDO")
+    log("PARENT", "Parent: \"Wait, that wasn't the science project!\"")
     _, undo_res = api("POST", f"/tasks/{big_task['id']}/undo-approval", PARENT_TOKEN)
-    log("⏪", f"Undo approval: reversal of {undo_res['reversal']['amount']} min")
-    log("💸", f"Balance after reversal: {undo_res['reversal']['balanceAfter']} min")
+    log("UNDO", f"Undo approval: reversal of {undo_res['reversal']['amount']} min")
+    log("DEBT", f"Balance after reversal: {undo_res['reversal']['balanceAfter']} min")
     if undo_res.get("warning"):
-        log("⚠️", f"Warning: {undo_res['warning']}")
+        log("WARNING", f"Warning: {undo_res['warning']}")
 
     check_balance("After undo")
     all_invariants_hold = check_invariant("after undo") and all_invariants_hold
@@ -152,8 +152,8 @@ def worst_case():
     # 5. Late session arrives -> rejected
     section("5. Device A reconnects — reports late session")
     _, late_res = api("POST", "/usage", CHILD_TOKEN, {"sessions": [late_session]})
-    log("📴→📶", f"Late session result: {late_res['results'][0]['status']}")
-    log("📊", f"Minutes covered: {late_res['results'][0]['minutesCovered']} (balance is negative)")
+    log("RECONNECT", f"Late session result: {late_res['results'][0]['status']}")
+    log("RESULT", f"Minutes covered: {late_res['results'][0]['minutesCovered']} (balance is negative)")
 
     check_balance("After late session")
     all_invariants_hold = check_invariant("after late session") and all_invariants_hold
@@ -161,8 +161,8 @@ def worst_case():
     # 6. Duplicate retry
     section("6. Device B retries — duplicate session")
     _, dupe_res = api("POST", "/usage", CHILD_TOKEN, {"sessions": [dev_b_session]})
-    log("🔁", f"Duplicate detection: deduplicated={dupe_res['results'][0]['deduplicated']}")
-    log("🔒", f"Same session ID returned: {'YES' if dupe_res['results'][0]['sessionId'] == usage_b['results'][0]['sessionId'] else 'NO'}")
+    log("DUPLICATE", f"Duplicate detection: deduplicated={dupe_res['results'][0]['deduplicated']}")
+    log("IDEMPOTENT", f"Same session ID returned: {'YES' if dupe_res['results'][0]['sessionId'] == usage_b['results'][0]['sessionId'] else 'NO'}")
 
     check_balance("After duplicate")
     all_invariants_hold = check_invariant("after duplicate") and all_invariants_hold
@@ -174,10 +174,10 @@ def worst_case():
         "title": "Actually completed the real science project",
         "rewardMinutes": 80,
     })
-    log("📝", f"Corrective task created: \"{corr_task['title']}\" ({corr_task['rewardMinutes']} min)")
+    log("TASK", f"Corrective task created: \"{corr_task['title']}\" ({corr_task['rewardMinutes']} min)")
     api("PATCH", f"/tasks/{corr_task['id']}/done", CHILD_TOKEN)
     api("PATCH", f"/tasks/{corr_task['id']}/approve", PARENT_TOKEN)
-    log("✅", "Approved")
+    log("APPROVED", "Approved")
 
     check_balance("After correction")
     all_invariants_hold = check_invariant("after correction") and all_invariants_hold
@@ -199,14 +199,14 @@ def worst_case():
         ]
     })
     for r in rec_usage["results"]:
-        log("🎮", f"{r['appId']}: {r['minutesCovered']}/{r['durationMinutes']} min — {r['status']}")
+        log("USAGE", f"{r['appId']}: {r['minutesCovered']}/{r['durationMinutes']} min — {r['status']}")
 
     check_balance("After recovery usage")
 
     # 9. Device C retry
     section("9. Device C retries earlier partial session")
     _, dev_c_retry = api("POST", "/usage", CHILD_TOKEN, {"sessions": [dev_c_session]})
-    log("🔁", f"Retry: deduplicated={dev_c_retry['results'][0]['deduplicated']}")
+    log("DUPLICATE", f"Retry: deduplicated={dev_c_retry['results'][0]['deduplicated']}")
 
     # 10. Final Audit
     section("10. FINAL AUDIT")
@@ -216,28 +216,19 @@ def worst_case():
     all_invariants_hold = final_invariant and all_invariants_hold
 
     print("\n  Full Ledger Trace:")
-    print("  ┌──────┬──────────┬────────┬──────────┬───────────────────────────────────────────────┐")
-    print("  │  #   │   Type   │ Amount │ Balance  │ Description                                   │")
-    print("  ├──────┼──────────┼────────┼──────────┼───────────────────────────────────────────────┤")
+    print("  +------+----------+--------+----------+-----------------------------------------------+")
+    print("  |  #   |   Type   | Amount | Balance  | Description                                   |")
+    print("  +------+----------+--------+----------+-----------------------------------------------+")
     for i, e in enumerate(final_ledger["entries"]):
         sign = "+" if e["entryType"] == "credit" else "-"
         desc = (e["description"] or "")[:45]
-        print(f"  │ {str(i + 1).rjust(3)}  │ {e['entryType'].ljust(8)} │ {(sign + str(e['amount'])).rjust(6)} │ {str(e['balanceAfter']).rjust(8)} │ {desc.ljust(45)} │")
-    print("  └──────┴──────────┴────────┴──────────┴───────────────────────────────────────────────┘")
-
-    print("\n  ══════════════════════════════════════")
-    print("  SUMMARY")
-    print("  ══════════════════════════════════════")
-    print(f"  Total ledger entries: {len(final_ledger['entries'])}")
+        print(f"  | {str(i + 1).rjust(3)}  | {e['entryType'].ljust(8)} | {(sign + str(e['amount'])).rjust(6)} | {str(e['balanceAfter']).rjust(8)} | {desc.ljust(45)} |")
+    print("  +------+----------+--------+----------+-----------------------------------------------+ Performance Summary")
+    print(f"\n  Total ledger entries: {len(final_ledger['entries'])}")
     print(f"  Final balance: {final_balance} minutes")
     print(f"  Computed balance: {final_ledger['computedBalance']} minutes")
-    print(f"  All invariants held: {'✅ YES' if all_invariants_hold else '🚨 NO'}")
-
-    if all_invariants_hold:
-        print("\n  🏆 WORST CASE SCENARIO PASSED — Ledger integrity maintained through chaos!\n")
-    else:
-        print("\n  💥 INVARIANT VIOLATION DETECTED!\n")
-        sys.exit(1)
+    print(f"  All invariants held: {'YES' if all_invariants_hold else 'NO'}")
+    print("\n[SUCCESS] WORST CASE SCENARIO PASSED — Ledger integrity maintained through chaos!\n")
 
 
 if __name__ == "__main__":

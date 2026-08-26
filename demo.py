@@ -57,16 +57,16 @@ def api(method: str, path: str, token: str, body: dict = None) -> tuple[int, dic
 
 
 def header(title: str):
-    print(f"\n{'═' * 70}")
+    print(f"\n{'=' * 70}")
     print(f"  {title}")
-    print(f"{'═' * 70}")
+    print(f"{'=' * 70}")
 
 
 def log_step(step_name: str, balance: int, new_entries: list[dict] = None):
-    print(f"\n📌 {step_name}")
-    print(f"   💰 Current Balance: {balance} minutes")
+    print(f"\n[STEP] {step_name}")
+    print(f"   [BALANCE] Current Balance: {balance} minutes")
     if new_entries:
-        print("   📝 Ledger Entries Created in this step:")
+        print("   [LEDGER] Entries Created in this step:")
         for e in new_entries:
             sign = "+" if e["entryType"] == "credit" else "-"
             print(
@@ -74,13 +74,13 @@ def log_step(step_name: str, balance: int, new_entries: list[dict] = None):
                 f"| Balance after: {e['balanceAfter']} min | {e['description']}"
             )
     else:
-        print("   📝 Ledger Entries Created: (None)")
+        print("   [LEDGER] Entries Created: (None)")
 
 
 def run_demo():
-    print("🏦 ==================================================================== 🏦")
-    print("🏦          REWARDBANK — SYSTEM LIFECYCLE DEMO TRANSCRIPT               🏦")
-    print("🏦 ==================================================================== 🏦")
+    print("====================================================================")
+    print("         REWARDBANK — SYSTEM LIFECYCLE DEMO TRANSCRIPT              ")
+    print("====================================================================")
 
     # ─────────────────────────────────────────────────────────────────
     # Step 1: Setup — Parent, Child, Starting Balance
@@ -90,11 +90,11 @@ def run_demo():
     initial_balance = bal_data["balance"]
 
     _, ledger_data = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
-    print(f"  • Family: The Smith Family")
-    print(f"  • Parent User: Alice (ID: parent-1, Token: {PARENT_TOKEN})")
-    print(f"  • Child User:  Bob   (ID: child-1, Token: {CHILD_TOKEN})")
-    print(f"  • Starting Balance: {initial_balance} minutes")
-    print(f"  • Initial Ledger Entries Count: {len(ledger_data['entries'])}")
+    print(f"  - Family: The Smith Family")
+    print(f"  - Parent User: Alice (ID: parent-1, Token: {PARENT_TOKEN})")
+    print(f"  - Child User:  Bob   (ID: child-1, Token: {CHILD_TOKEN})")
+    print(f"  - Starting Balance: {initial_balance} minutes")
+    print(f"  - Initial Ledger Entries Count: {len(ledger_data['entries'])}")
     log_step("Setup Complete", initial_balance)
 
     # Earn an initial 30 minutes balance for Bob
@@ -123,12 +123,12 @@ def run_demo():
     start_time = now - timedelta(minutes=40)
     end_time = now
 
-    print(f"  📱 Bob submits YouTube usage session:")
-    print(f"     • App: YouTube")
-    print(f"     • Start: {start_time.isoformat()}")
-    print(f"     • End:   {end_time.isoformat()}")
-    print(f"     • Requested Duration: 40 minutes")
-    print(f"     • Available Balance:  30 minutes")
+    print(f"  - Bob submits YouTube usage session:")
+    print(f"     - App: YouTube")
+    print(f"     - Start: {start_time.isoformat()}")
+    print(f"     - End:   {end_time.isoformat()}")
+    print(f"     - Requested Duration: 40 minutes")
+    print(f"     - Available Balance:  30 minutes")
 
     _, usage1_res = api("POST", "/usage", CHILD_TOKEN, {
         "sessions": [
@@ -141,13 +141,13 @@ def run_demo():
     })
     u1 = usage1_res["results"][0]
 
-    print(f"\n  📊 Session Result:")
-    print(f"     • Status: {u1['status']}")
-    print(f"     • Minutes Covered: {u1['minutesCovered']} / {u1['durationMinutes']} min")
-    print(f"     • Exact Cutoff Timestamp (Balance Exhausted At): {u1['balanceExhaustedAt']}")
+    print(f"\n  [RESULT] Session Processing:")
+    print(f"     - Status: {u1['status']}")
+    print(f"     - Minutes Covered: {u1['minutesCovered']} / {u1['durationMinutes']} min")
+    print(f"     - Exact Cutoff Timestamp (Balance Exhausted At): {u1['balanceExhaustedAt']}")
 
     # Attempt further usage when balance is zero
-    print(f"\n  🚫 Bob attempts further usage on TikTok (10 min) while balance is 0:")
+    print(f"\n  [BLOCKED] Bob attempts further usage on TikTok (10 min) while balance is 0:")
     _, usage2_res = api("POST", "/usage", CHILD_TOKEN, {
         "sessions": [
             {
@@ -158,8 +158,8 @@ def run_demo():
         ]
     })
     u2 = usage2_res["results"][0]
-    print(f"     • Status: {u2['status']}")
-    print(f"     • Minutes Covered: {u2['minutesCovered']} / {u2['durationMinutes']} min (BLOCKED!)")
+    print(f"     - Status: {u2['status']}")
+    print(f"     - Minutes Covered: {u2['minutesCovered']} / {u2['durationMinutes']} min (BLOCKED)")
 
     _, bal_step3 = api("GET", "/children/child-1/balance", PARENT_TOKEN)
     _, ledger_step3 = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
@@ -179,13 +179,13 @@ def run_demo():
         "title": "Clean bedroom & study table",
         "rewardMinutes": 50,
     })
-    print(f"  1️⃣ Parent creates task: \"{task2['title']}\" (+{task2['rewardMinutes']} min reward)")
+    print(f"  1. Parent creates task: \"{task2['title']}\" (+{task2['rewardMinutes']} min reward)")
 
     _, task2_done = api("PATCH", f"/tasks/{task2['id']}/done", CHILD_TOKEN)
-    print(f"  2️⃣ Child marks task as DONE (status: '{task2_done['status']}')")
+    print(f"  2. Child marks task as DONE (status: '{task2_done['status']}')")
 
     _, task2_app = api("PATCH", f"/tasks/{task2['id']}/approve", PARENT_TOKEN)
-    print(f"  3️⃣ Parent APPROVES task (status: '{task2_app['status']}')")
+    print(f"  3. Parent APPROVES task (status: '{task2_app['status']}')")
 
     _, bal_step4 = api("GET", "/children/child-1/balance", PARENT_TOKEN)
     _, ledger_step4 = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
@@ -203,7 +203,7 @@ def run_demo():
     usage3_start = now + timedelta(minutes=15)
     usage3_end = now + timedelta(minutes=35)
 
-    print(f"  🎮 Bob plays Minecraft using newly earned balance (20 min session)")
+    print(f"  - Bob plays Minecraft using newly earned balance (20 min session)")
     _, usage3_res = api("POST", "/usage", CHILD_TOKEN, {
         "sessions": [
             {
@@ -214,7 +214,7 @@ def run_demo():
         ]
     })
     u3 = usage3_res["results"][0]
-    print(f"     • App: Minecraft | Covered: {u3['minutesCovered']}/{u3['durationMinutes']} min | Status: {u3['status']}")
+    print(f"     - App: Minecraft | Covered: {u3['minutesCovered']}/{u3['durationMinutes']} min | Status: {u3['status']}")
 
     _, bal_step5 = api("GET", "/children/child-1/balance", PARENT_TOKEN)
     _, ledger_step5 = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
@@ -229,17 +229,17 @@ def run_demo():
     # ─────────────────────────────────────────────────────────────────
     header("STEP 6: Correction (Undo Approval) & Negative Balance Debt State")
 
-    print(f"  😱 Parent realizes: \"Wait, bedroom wasn't cleaned properly!\"")
-    print(f"  ⏪ Parent undoes approval for task: \"{task2['title']}\" (-50 min reversal)")
+    print(f"  - Parent realizes: \"Wait, bedroom wasn't cleaned properly!\"")
+    print(f"  - Parent undoes approval for task: \"{task2['title']}\" (-50 min reversal)")
 
     _, undo_res = api("POST", f"/tasks/{task2['id']}/undo-approval", PARENT_TOKEN)
     reversal_entry = undo_res["reversal"]
 
-    print(f"     • Task Status: {undo_res['task']['status']}")
-    print(f"     • Reversal Amount: -{reversal_entry['amount']} min")
-    print(f"     • Balance After Reversal: {reversal_entry['balanceAfter']} min")
+    print(f"     - Task Status: {undo_res['task']['status']}")
+    print(f"     - Reversal Amount: -{reversal_entry['amount']} min")
+    print(f"     - Balance After Reversal: {reversal_entry['balanceAfter']} min")
     if undo_res.get("warning"):
-        print(f"     • ⚠️ WARNING: {undo_res['warning']}")
+        print(f"     - [WARNING] {undo_res['warning']}")
 
     _, bal_step6 = api("GET", "/children/child-1/balance", PARENT_TOKEN)
     _, ledger_step6 = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
@@ -257,10 +257,10 @@ def run_demo():
     _, final_ledger = api("GET", "/children/child-1/ledger", PARENT_TOKEN)
     entries = final_ledger["entries"]
 
-    print("\n  📋 Complete Chronological Ledger Table:")
-    print("  ┌─────┬──────────┬────────┬──────────┬─────────────────────────────────────────────────────────────┐")
-    print("  │  #  │   Type   │ Amount │ Balance  │ Description                                                 │")
-    print("  ├─────┼──────────┼────────┼──────────┼─────────────────────────────────────────────────────────────┤")
+    print("\n  Complete Chronological Ledger Table:")
+    print("  +-----+----------+--------+----------+-------------------------------------------------------------+")
+    print("  |  #  |   Type   | Amount | Balance  | Description                                                 |")
+    print("  +-----+----------+--------+----------+-------------------------------------------------------------+")
 
     computed_sum = 0
     for i, e in enumerate(entries):
@@ -273,28 +273,28 @@ def run_demo():
 
         desc = (e["description"] or "")[:59]
         print(
-            f"  │ {str(i + 1).rjust(3)} │ {e['entryType'].ljust(8)} │ "
-            f"{amt_str.rjust(6)} │ {str(e['balanceAfter']).rjust(8)} │ "
-            f"{desc.ljust(59)} │"
+            f"  | {str(i + 1).rjust(3)} | {e['entryType'].ljust(8)} | "
+            f"{amt_str.rjust(6)} | {str(e['balanceAfter']).rjust(8)} | "
+            f"{desc.ljust(59)} |"
         )
-    print("  └─────┴──────────┴────────┴──────────┴─────────────────────────────────────────────────────────────┘")
+    print("  +-----+----------+--------+----------+-------------------------------------------------------------+")
 
     final_balance = final_ledger["currentBalance"]
     server_computed = final_ledger["computedBalance"]
     invariant_holds = final_ledger["invariantHolds"] and (computed_sum == final_balance)
 
-    print("\n  📊 Final Summary Statistics:")
-    print(f"     • Total Ledger Transactions: {len(entries)}")
-    print(f"     • Final Reported Balance:   {final_balance} minutes")
-    print(f"     • Computed Ledger Sum:      {computed_sum} minutes")
-    print(f"     • Server Computed Balance:  {server_computed} minutes")
-    print(f"     • Invariant Assertion:      {'✅ HOLDS (EXACT MATCH)' if invariant_holds else '❌ VIOLATED'}")
+    print("\n  Final Summary Statistics:")
+    print(f"     - Total Ledger Transactions: {len(entries)}")
+    print(f"     - Final Reported Balance:   {final_balance} minutes")
+    print(f"     - Computed Ledger Sum:      {computed_sum} minutes")
+    print(f"     - Server Computed Balance:  {server_computed} minutes")
+    print(f"     - Invariant Assertion:      {'HOLDS (EXACT MATCH)' if invariant_holds else 'VIOLATED'}")
 
     assert invariant_holds, "Ledger invariant check failed!"
 
-    print("\n✨ ==================================================================== ✨")
-    print("✨          DEMO COMPLETE — ALL SYSTEM INVARIANTS VERIFIED              ✨")
-    print("✨ ==================================================================== ✨\n")
+    print("\n====================================================================")
+    print("         DEMO COMPLETE — ALL SYSTEM INVARIANTS VERIFIED             ")
+    print("====================================================================\n")
 
 
 if __name__ == "__main__":
