@@ -43,7 +43,12 @@ undo to happen. It writes a -60 minute reversal line to the ledger, which pushes
 
 ### 5. If you were told this must now handle 100,000 children with usage events streaming in constantly, what is the first thing in your current design that breaks, and how would you fix it?
 
-*TODO: Add your answer here*
+*Right now,our system uses SQLite. SQLite is fantastic for local development and small apps. In SQLite only one write operation can happen at a        time across the entire database.If 100,000 children are actively using devices and streaming thousands of usage events per second,SQLite will instantly crash.Additionally,re-calculating the balance from the entire ledger history on every read would get slower and slower as the ledger    table grows to millions of rows. If I have to fix i will definitely upgrade the architecture with following chnges : 
+1. Use PostgresSQL instead of SQLite .
+2. Put a message Queue .
+3. Use Redis for In-Memory Balance Caching : When a usage event comes in, deduct from the Redis cache immediately so the device gets an instant response, and let the background worker write the official ledger entry to PostgreSQL.
+4. Horizontal API Scaling : Do conterization with helps of docker, deploy my backend as docker containers running on kubernets or AWS behind a load Balancer .
+5. Rate Limiting & Protection: Put Redis-based Rate Limiting in front of the API (e.g., max 60 requests per minute per device).*
 
 ---
 
