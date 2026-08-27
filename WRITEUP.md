@@ -14,7 +14,13 @@
 
 ### 2. A parent double-clicks the "Approve" button and your API receives the approval request twice, 200ms apart. What does your system do? Prove it with a test.
 
-*TODO: Add your answer here*
+*When a parent double-clicks the approve button the server gets the first request and sees the task is marked as done. It updates tasks status to approved and add reward balance to in the ledger. But when 200ms later the second request hits ,system looks up the task again and see approved not (done) . Since our app only allows if is in done state , the second request fail validation. Server rejects with it with 400 bad request with message already approved task.                                           
+How we prove it : I wrote a unit test called test_parent_double_click_approve_idempotent in tests/test_tasks.py that mimics double tap behaviour:
+1. It creates a task worth 30 minutes and marks it as done.
+2. It sends the first PATCH /tasks/{id}/approve request and asserts it succeeds with HTTP 200 OK.
+3. It immediately sends a second PATCH /tasks/{id}/approve request for the same task ID and asserts it gets rejected with HTTP 400 Bad Request.
+4. Finally, it checks the child's balance and ledger to confirm the balance is exactly 30 minutes (not 60) and there is only 1 transaction line in   the ledger.
+*
 
 ---
 
