@@ -7,8 +7,8 @@
 2. When offline device reconnects and reports session use from the past , server evaluates coverage against current balance at exact time request arrives,rather than replaying past balances . Reason : Processing against the current balance keeps accounting , predicatable and simple .
 3. Idempotency Handling (Any ussage session with identical app id , child id, start time ,end time)  is a duplicate of recent event. Reason: Generating a hash of these 4 parameters guarantess duplicate session submission return cached original data without double debiting minutes.
 4. When a parent undoes a task approval after the child has already spent the reward minutes,the child's balance is allowed to drop below zero     into a negative state. Reason : A negative balance is the honest representation it automatically blocks further app usage until the child     completes new tasks to pay off the deficit.
-
-5.Multi-Parent Family (Parents can manage any child within their family, while children can only view and manage their own account) 
+   
+5. Multi-Parent Family (Parents can manage any child within their family, while children can only view and manage their own account) 
  Reason : Real households often have multiple parents/guardians and multiple children. Role-Based Access Control enforces strict family boundary isolation and security.
 ---
 
