@@ -57,6 +57,7 @@ undo to happen. It writes a -60 minute reversal line to the ledger, which pushes
 *What I deliberately did NOT build and why : 
 1. Full Authentication System (JWT/OAuth):Document stated that simple Bearer tokens (parent-token-alice, child-token-bob) were enough. Building  password resets, email verifications,and JWT signing would have taken time away from ledger integrity and edge-case handling.
 2. Web/Frontend UI: I focused on clean REST APIs, automated simulators, and a clear terminal demo transcript.
+
 How I would build it with one more week:
 1. Production Auth & Household Management : Implement secure JWT authentication with hashed passwords .
 Add family onboarding so parents can create a household and invite co-parents or kids using a 6-digit join code.
