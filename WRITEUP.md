@@ -54,4 +54,13 @@ undo to happen. It writes a -60 minute reversal line to the ledger, which pushes
 
 ### 6. What did you deliberately not build, and how would you build it with one more week?
 
-*TODO: Add your answer here*
+*What I deliberately did NOT build and why : 
+1. Full Authentication System (JWT/OAuth):Document stated that simple Bearer tokens (parent-token-alice, child-token-bob) were enough. Building  password resets, email verifications,and JWT signing would have taken time away from ledger integrity and edge-case handling.
+2. Web/Frontend UI: I focused on clean REST APIs, automated simulators, and a clear terminal demo transcript.
+How I would build it with one more week:
+1. Production Auth & Household Management : Implement secure JWT authentication with hashed passwords .
+Add family onboarding so parents can create a household and invite co-parents or kids using a 6-digit join code.
+2. Real-Time Push Notifications : Parents get instant push alerts when a child marks a chore done.
+Send an instant "Screen Time Expired" signal to the child's device the second balanceExhaustedAt is reached.
+3. Parent Analytics & Automated Audit Alarms: Build a visual dashboard showing weekly screen-time trends, top used apps, and chore completion stats.
+Set up an automated nightly background job that re-calculates all ledger invariants and sends an alert if any discrepancy is ever found. *
