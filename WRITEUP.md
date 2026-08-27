@@ -33,7 +33,11 @@ to avoid conflicts and as of now we have balance = 25 min and if db process yout
 
 ### 4. Your undo-approval design: what happens if the balance would go negative? Why is your choice the right one for a parent-child product (not just technically convenient)?
 
-*TODO: Add your answer here*
+*If a child earns 60 minutes from a task, spends 50 minutes watching YouTube, and the parent then undoes the task approval, the server allows the 
+undo to happen. It writes a -60 minute reversal line to the ledger, which pushes the child's balance into a negative number(-10 minutes).              My Choice — The Negative Balance (Debt Model) : 
+1. Gives parents ultimate control: Parents can correct mistakes anytime without software getting in their way.
+2. Teaches real-world responsibility: It turns a mistake into a great teaching moment. If you spent screen time you didn't actually earn, you are    in debt. You have to do new chores to earn your way back to positive standing.
+3. 100% Honest Accounting: The ledger reflects the exact truth: +60 earned,-50 spent,-60 reversed =-10 balance.The math stays completely honest and provable.*
 
 ---
 
