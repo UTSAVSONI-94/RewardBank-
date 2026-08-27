@@ -26,7 +26,8 @@ How we prove it : I wrote a unit test called test_parent_double_click_approve_id
 
 ### 3. Two usage sessions from two different apps are reported for the same child at the same time, and together they exceed the remaining balance. Walk through exactly what your system does, entry by entry in the ledger.
 
-*TODO: Add your answer here*
+*Let's take a scenario where 2 tasks arrived at same time for ex youtube for 20 min and spotify for 15 min , our database handle requests one by one
+to avoid conflicts and as of now we have balance = 25 min and if db process youtube first (balance > duration) , child will be allowed to complete youtube session and now updated balance(debit = 20) is 5 min so now request for spotify session is 15 min but our system calculates allowed time = min(duration,balance) which is 5 min here . So Child will be allowed to use 5 min and after 5 mins balance will updated to zero and both session completed this is here partial completion occurs due to low reward balance . *
 
 ---
 
